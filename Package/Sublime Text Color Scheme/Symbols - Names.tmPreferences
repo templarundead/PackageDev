@@ -2,15 +2,15 @@
 <plist version="1.0">
 	<dict>
 		<key>name</key>
-		<string>Variable</string>
+		<string>Names</string>
 		<key>scope</key>
-		<string>entity.name.variable.sublime-color-scheme</string>
+		<string>support.constant.rule-name.color-scheme</string>
 		<key>settings</key>
 		<dict>
 			<key>showInSymbolList</key>
 			<integer>1</integer>
 			<key>symbolTransformation</key>
-			<string>s/^/var: /</string>
+			<string>s/^/name: /</string>
 		</dict>
 	</dict>
 </plist>

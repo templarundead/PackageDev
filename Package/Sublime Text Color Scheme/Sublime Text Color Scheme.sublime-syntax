@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 # http://www.sublimetext.com/docs/3/syntax.html
-name: Sublime Text Color Scheme (JSON)
+name: Sublime-Color-Scheme+
 file_extensions:
   - sublime-color-scheme
 scope: source.json.sublime.color-scheme
@@ -134,7 +134,7 @@ contexts:
         1: punctuation.definition.string.begin.json
         2: keyword.other.rule.sublime-color-scheme
         3: punctuation.definition.string.end.json
-      set: [expect-string-value, expect-colon]
+      set: [expect-rule-name-string-value, expect-colon]
     - include: in-dictionary-rule-key
     - include: expect-mapping-rest
 
@@ -201,7 +201,7 @@ contexts:
         - include: expect-key-rest
 
   globals-mapping-key:
-    - match: (")(accent|shadow|invisibles|caret|line_highlight|foreground|background|selection|selection_border|inactive_selection|inactive_selection_foreground|highlight|find_highlight|find_highlight_foreground|stack_guide|active_guide|guide|misspelling|brackets_foreground|bracket_contents_foreground|tags_foreground|minimap_border|gutter|gutter_foreground|rulers)(")
+    - match: (")(accent|active_guide|background|bracket_contents_foreground|brackets_foreground|caret|find_highlight|find_highlight_foreground|fold_marker|foreground|guide|gutter|gutter_foreground|highlight|inactive_selection|inactive_selection_foreground|invisibles|line_highlight|minimap_border|misspelling|rulers|selection|selection_border|selection_border_width|selection_corner_radius|selection_corner_style|shadow|stack_guide|tags_foreground)(")
       scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
       captures:
         1: punctuation.definition.string.begin.json
@@ -244,52 +244,52 @@ contexts:
         - include: string-escape
 
   comments:
-    - include: Sublime JSON.sublime-syntax#comments
+    - include: scope:source.json.sublime#comments
 
   only-comments:
-    - include: Sublime JSON.sublime-syntax#only-comments
+    - include: scope:source.json.sublime#only-comments
 
   expect-colon:
-    - include: Sublime JSON.sublime-syntax#expect-colon
+    - include: scope:source.json.sublime#expect-colon
 
   expect-any-value:
-    - include: Sublime JSON.sublime-syntax#expect-any-value
+    - include: scope:source.json.sublime#expect-any-value
 
   expect-scope-string-value:
-    - include: Sublime JSON.sublime-syntax#expect-scope-string-value
+    - include: scope:source.json.sublime#expect-scope-string-value
 
   expect-key-rest:
-    - include: Sublime JSON.sublime-syntax#expect-key-rest
+    - include: scope:source.json.sublime#expect-key-rest
 
   expect-sequence-rest:
-    - include: Sublime JSON.sublime-syntax#expect-sequence-rest
+    - include: scope:source.json.sublime#expect-sequence-rest
 
   expect-mapping-rest:
-    - include: Sublime JSON.sublime-syntax#expect-mapping-rest
+    - include: scope:source.json.sublime#expect-mapping-rest
 
   expect-string-rest:
-    - include: Sublime JSON.sublime-syntax#expect-string-rest
+    - include: scope:source.json.sublime#expect-string-rest
 
   expect-string-value:
-    - include: Sublime JSON.sublime-syntax#expect-string-value
+    - include: scope:source.json.sublime#expect-string-value
 
   string-escape:
-    - include: Sublime JSON.sublime-syntax#string-escape
+    - include: scope:source.json.sublime#string-escape
 
   expect-boolean-value:
-    - include: Sublime JSON.sublime-syntax#expect-boolean-value
+    - include: scope:source.json.sublime#expect-boolean-value
 
   expect-mapping-value:
-    - include: Sublime JSON.sublime-syntax#expect-mapping-value
+    - include: scope:source.json.sublime#expect-mapping-value
 
   in-sequence-expect-comma:
-    - include: Sublime JSON.sublime-syntax#in-sequence-expect-comma
+    - include: scope:source.json.sublime#in-sequence-expect-comma
 
   in-mapping-expect-comma:
-    - include: Sublime JSON.sublime-syntax#in-mapping-expect-comma
+    - include: scope:source.json.sublime#in-mapping-expect-comma
 
   expect-command-name-value:
-    - include: Sublime JSON.sublime-syntax#expect-command-name-value
+    - include: scope:source.json.sublime#expect-command-name-value
 
   mapping-value-meta:
     - clear_scopes: 1
@@ -325,8 +325,8 @@ contexts:
         # so we push a prototype.
         - match: ''
           push:
-            - meta_scope: source.css
-            - include: CSS.sublime-syntax#color-values
+           - meta_scope: source.css
+           - include: scope:source.css#color-values
           with_prototype:
             - match: (?=")
               pop: true
@@ -391,6 +391,30 @@ contexts:
   font-style:
     - match: \b(bold|italic)\b
       scope: support.constant.font-style.color-scheme
+
+  expect-rule-name-string-value:
+    - match: (?=")
+      set: [mapping-value-meta, rule-name-string-pop]
+    - include: expect-string-rest
+    
+  rule-name-string-pop:
+    - match: \"
+      scope: punctuation.definition.string.begin.json
+      set:
+        - meta_scope: meta.rule-name.sublime-color-scheme string.quoted.double.json
+        - match: '"'
+          scope: punctuation.definition.string.end.json
+          pop: true
+        - match: $\n?
+          scope: invalid.illegal.unclosed-string.json
+          pop: true
+        - include: rule-names
+        - include: string-escape
+
+  rule-names:
+    - match: \b(.*)\b
+      scope: support.constant.rule-name.color-scheme
+
 
   expect-underlinestyle-string-value:
     - match: (?=")
