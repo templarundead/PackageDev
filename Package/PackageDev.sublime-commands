@@ -101,8 +101,12 @@
     "command": "packagedev_new_resource",
     "args": {"kind": "settings"}
   },
-  { "caption": "PackageDev: New Textmate Preferences",
+  { "caption": "PackageDev: New Textmate Preferences File",
     "command": "packagedev_new_resource",
     "args": {"kind": "tm_preferences"}
+  },
+  { "caption": "PackageDev: New Theme",
+    "command": "packagedev_new_resource",
+    "args": {"kind": "theme"}
   },
 ]
