@@ -4,6 +4,7 @@
 name: Sublime Text Color Scheme (JSON)
 file_extensions:
   - sublime-color-scheme
+  - hidden-color-scheme
 scope: source.json.sublime.color-scheme
 
 contexts:
@@ -25,7 +26,7 @@ contexts:
         - include: expect-key-rest
 
   main-key:
-    - clear_scopes: 1
+    #- clear_scopes: 1
     - match: (")(rules)(")
       scope: meta.mapping.key.json meta.main-key.sublime-color-scheme string.quoted.double.json
       captures:
@@ -99,7 +100,7 @@ contexts:
         - include: expect-key-rest
 
   rule-key:
-    - clear_scopes: 1
+    #- clear_scopes: 1
     - match: (")(scope)(")
       scope: meta.mapping.key.json meta.rule-key.sublime-color-scheme string.quoted.double.json
       captures:
@@ -121,6 +122,13 @@ contexts:
         2: keyword.other.rule.sublime-color-scheme
         3: punctuation.definition.string.end.json
       set: [expect-color-list-string-value, expect-colon]
+    - match: (")(foreground_adjust)(")
+      scope: meta.mapping.key.json meta.rule-key.sublime-color-scheme string.quoted.double.json
+      captures:
+        1: punctuation.definition.string.begin.json
+        2: keyword.other.rule.sublime-color-scheme
+        3: punctuation.definition.string.end.json
+      set: [expect-color-adjuster-value, expect-colon]
     - match: (")(font_style)(")
       scope: meta.mapping.key.json meta.rule-key.sublime-color-scheme string.quoted.double.json
       captures:
@@ -339,10 +347,8 @@ contexts:
         # so we push a prototype.
         - match: ''
           push:
-            - meta_scope: source.css
-            - include: scope:source.css#color-values
             - meta_scope: source.css-color
-            - include: CSS.sublime-syntax#color-values
+            - include: scope:source.css#color-values
           with_prototype:
             - match: (?=")
               pop: true
@@ -385,6 +391,27 @@ contexts:
         - match: '[^\s\]\/,]+'
           scope: invalid.illegal.color.expected-string.sublime-color-scheme
 
+  expect-color-adjuster-value:
+    - match: (?=")
+      set: [mapping-value-meta, color-adjuster-string-pop]
+    - include: expect-string-rest
+
+  color-adjuster-string-pop:
+    - match: \"
+      scope: punctuation.definition.string.begin.json
+      set:
+        - meta_scope: string.quoted.double.json meta.color-adjuster.sublime-color-scheme
+        # Set a fake source scope so it's recognized as "embedded code",
+        # but don't set "source.css" to avoid completions provided by shipped package.
+        - meta_content_scope: source.css-color
+        - match: '"'
+          scope: punctuation.definition.string.end.json
+          pop: true
+        - match: $\n?
+          scope: invalid.illegal.unclosed-string.json
+          pop: true
+        - include: scope:source.css#color-adjuster-functions
+
   expect-fontstyle-string-value:
     - match: (?=")
       set: [mapping-value-meta, fontstyle-string-pop]
@@ -395,10 +422,6 @@ contexts:
       scope: punctuation.definition.string.begin.json
       set:
         - meta_scope: meta.font-style.sublime-color-scheme string.quoted.double.json
-        - meta_scope: string.quoted.double.json meta.color-adjuster.sublime-color-scheme
-        # Set a fake source scope so it's recognized as "embedded code",
-        # but don't set "source.css" to avoid completions provided by shipped package.
-        - meta_content_scope: source.css-color
         - match: '"'
           scope: punctuation.definition.string.end.json
           pop: true
@@ -411,29 +434,6 @@ contexts:
   font-style:
     - match: \b(bold|italic)\b
       scope: support.constant.font-style.color-scheme
-      
-  expect-rule-name-string-value:
-    - match: (?=")
-      set: [mapping-value-meta, rule-name-string-pop]
-    - include: expect-string-rest
-
-  rule-name-string-pop:
-    - match: \"
-      scope: punctuation.definition.string.begin.json
-      set:
-        - meta_scope: meta.rule-name.sublime-color-scheme string.quoted.double.json
-        - match: '"'
-          scope: punctuation.definition.string.end.json
-          pop: true
-        - match: $\n?
-          scope: invalid.illegal.unclosed-string.json
-          pop: true
-        - include: rule-names
-        - include: string-escape
-
-  rule-names:
-    - match: \b(.*)\b
-      scope: support.constant.rule-name.color-scheme
 
   expect-underlinestyle-string-value:
     - match: (?=")
@@ -514,3 +514,21 @@ contexts:
           pop: true
         - include: string-escape
         - include: scope:source.json.sublime#number
+  
+  expect-rule-name-string-value:
+    - match: (?=")
+      set: [mapping-value-meta, rule-name-string-pop]
+    - include: expect-string-rest
+
+  rule-name-string-pop:
+    - match: '"'
+      scope: punctuation.definition.string.begin.json
+      set:
+        - meta_scope: meta.rule-name.sublime-color-scheme string.quoted.double.json
+        - meta_content_scope: support.constant.name-value.sublime-color-scheme      
+        - match: '"'
+          scope: punctuation.definition.string.end.json
+          pop: true
+        - match: $\n?
+          scope: invalid.illegal.unclosed-string.json
+          pop: true
