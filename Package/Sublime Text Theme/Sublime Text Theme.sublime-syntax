@@ -463,7 +463,7 @@ contexts:
       set:
         - meta_scope: string.quoted.double.json
         - meta_content_scope: variable.other.setting.sublime-theme
-        - include: Sublime JSON.sublime-syntax#inside-string
+        - include: scope:source.json.sublime#inside-string
         - match: '[\w]+(\.)'
           scope: keyword.other.namespace.sublime-theme
           captures:
@@ -471,7 +471,7 @@ contexts:
     - include: expect-string
 
   expect-texture-mapping-value:
-    - include: Sublime JSON.sublime-syntax#expect-null-value-only
+    - include: scope:source.json.sublime#expect-null-value-only
     - include: var-value
     - match: (?=\{)
       set: [mapping-value-meta, texture-mapping-pop]
@@ -582,14 +582,14 @@ contexts:
     - include: string-pop
 
   expect-tint-value:
-    - include: Sublime JSON.sublime-syntax#expect-boolean-value-only
-    - include: Sublime JSON.sublime-syntax#expect-null-value-only
+    - include: scope:source.json.sublime#expect-boolean-value-only
+    - include: scope:source.json.sublime#expect-null-value-only
     - include: expect-color-value
 
   expect-color-value:
     # already has variable interpolation
     - match: (?=")
-      set: [mapping-value-meta, Sublime Text Color Scheme.sublime-syntax#color-string-pop]
+      set: [mapping-value-meta, scope:source.json.sublime.color-scheme#color-string-pop]
     # Sequences are deprecated, so only use lazy highlighting
     #   https://www.sublimetext.com/docs/3/themes.html#color_values
     #   https://www.sublimetext.com/docs/3/themes.html#deprecated
@@ -602,7 +602,7 @@ contexts:
 
   expect-number-or-number-sequence-value:
     - include: var-value
-    - include: Sublime JSON.sublime-syntax#number-pop
+    - include: scope:source.json.sublime#number-pop
     # Be a bit lazy here
     - include: expect-sequence-value
 
@@ -616,8 +616,8 @@ contexts:
       set:
         - meta_scope: string.quoted.double.json
         - meta_content_scope: source.css-color
-        - include: Sublime JSON.sublime-syntax#inside-string
-        - include: Sublime Text Color Scheme.sublime-syntax#color-var-function
+        - include: scope:source.json.sublime#inside-string
+        - include: scope:source.json.sublime.color-scheme#color-var-function
 
   expect-class-string-value:
     - match: (?=")
@@ -631,64 +631,64 @@ contexts:
         # deliberately do not choose "entity.name.class"
         - meta_scope: string.quoted.double.json meta.class-selector.sublime-theme
         - meta_content_scope: entity.name.class-selector.sublime-theme
-        - include: Sublime JSON.sublime-syntax#inside-string
+        - include: scope:source.json.sublime#inside-string
 
   #####################################
 
   comments:
-    - include: Sublime JSON.sublime-syntax#comments
+    - include: scope:source.json.sublime#comments
 
   only-comments:
-    - include: Sublime JSON.sublime-syntax#only-comments
+    - include: scope:source.json.sublime#only-comments
 
   expect-colon:
-    - include: Sublime JSON.sublime-syntax#expect-colon
+    - include: scope:source.json.sublime#expect-colon
 
   expect-any-value:
-    - include: Sublime JSON.sublime-syntax#expect-any-value
+    - include: scope:source.json.sublime#expect-any-value
 
   expect-key-rest:
-    - include: Sublime JSON.sublime-syntax#expect-key-rest
+    - include: scope:source.json.sublime#expect-key-rest
 
   expect-sequence-value:
     - include: var-value
-    - include: Sublime JSON.sublime-syntax#expect-sequence-value
+    - include: scope:source.json.sublime#expect-sequence-value
 
   expect-sequence-rest:
-    - include: Sublime JSON.sublime-syntax#expect-sequence-rest
+    - include: scope:source.json.sublime#expect-sequence-rest
 
   expect-mapping-rest:
-    - include: Sublime JSON.sublime-syntax#expect-mapping-rest
+    - include: scope:source.json.sublime#expect-mapping-rest
 
   expect-number-value:
     - include: var-value
-    - include: Sublime JSON.sublime-syntax#expect-number-value
+    - include: scope:source.json.sublime#expect-number-value
 
   expect-string:
-    - include: Sublime JSON.sublime-syntax#expect-string
+    - include: scope:source.json.sublime#expect-string
 
   expect-string-value:
     - include: var-value
-    - include: Sublime JSON.sublime-syntax#expect-string-value
+    - include: scope:source.json.sublime#expect-string-value
 
   expect-string-rest:
-    - include: Sublime JSON.sublime-syntax#expect-string-rest
+    - include: scope:source.json.sublime#expect-string-rest
 
   string-escape:
-    - include: Sublime JSON.sublime-syntax#string-escape
+    - include: scope:source.json.sublime#string-escape
 
   string-pop:
-    - include: Sublime JSON.sublime-syntax#string-pop
+    - include: scope:source.json.sublime#string-pop
 
   expect-boolean-value:
     - include: var-value
-    - include: Sublime JSON.sublime-syntax#expect-boolean-value
+    - include: scope:source.json.sublime#expect-boolean-value
 
   in-sequence-expect-comma:
-    - include: Sublime JSON.sublime-syntax#in-sequence-expect-comma
+    - include: scope:source.json.sublime#in-sequence-expect-comma
 
   in-mapping-expect-comma:
-    - include: Sublime JSON.sublime-syntax#in-mapping-expect-comma
+    - include: scope:source.json.sublime#in-mapping-expect-comma
 
   mapping-value-meta:
     - clear_scopes: 1
