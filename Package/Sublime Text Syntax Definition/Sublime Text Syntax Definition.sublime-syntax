@@ -87,7 +87,7 @@ variables:
 
 contexts:
   comment:
-    - include: Packages/YAML/YAML.sublime-syntax#comment
+    - include: scope:source.yaml#comment
 
   main:
     - match: (first_line_match)\s*(:)(?=\s|$)
@@ -137,7 +137,7 @@ contexts:
     # (based on YAML.sublime-syntax#block-pair)
     - match: '^ +{{block_key_lookahead}}'
       push:
-        - include: Packages/YAML/YAML.sublime-syntax#flow-scalar-plain-out-implicit-type
+        - include: scope:source.yaml#flow-scalar-plain-out-implicit-type
         - match: :(?=\s|$)
           scope: punctuation.separator.mapping.key-value.yaml
           set: expect_regexp
@@ -163,7 +163,7 @@ contexts:
     # (based on YAML.sublime-syntax#block-pair)
     - match: ^ {1,2}{{block_key_lookahead}}
       push:
-        - include: Packages/YAML/YAML.sublime-syntax#flow-scalar-plain-out-implicit-type
+        - include: scope:source.yaml#flow-scalar-plain-out-implicit-type
         - match: :(?=\s|$)
           scope: punctuation.separator.mapping.key-value.yaml
           pop: true
@@ -583,11 +583,11 @@ contexts:
       pop: true
 
   regexp:
-    - include: Oniguruma RegExp.sublime-syntax
+    - include: scope:source.regexp.oniguruma
 
   regexp_extended:
     - meta_content_scope: source.regexp.oniguruma
-    - include: Oniguruma RegExp.sublime-syntax#base-group-extended
+    - include: scope:source.regexp.oniguruma#base-group-extended
 
   regexp_variable:
     - match: '(\{\{)([a-zA-Z_0-9]+)(\}\})'
@@ -599,12 +599,12 @@ contexts:
       push: regexp_quantifier_pop
 
   regexp_quantifier_pop:
-    - include: Oniguruma RegExp.sublime-syntax#quantifiers
+    - include: scope:source.regexp.oniguruma#quantifiers
     - match: ''
       pop: true
 
   yaml-block-sequence:
-    - include: YAML.sublime-syntax#block-sequence
+    - include: scope:source.yaml#block-sequence
 
   yaml-tags-anchors:
-    - include: YAML.sublime-syntax#property
+    - include: scope:source.yaml#property
