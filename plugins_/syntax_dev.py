@@ -183,7 +183,8 @@ class SyntaxDefCompletionsListener(sublime_plugin.ViewEventListener):
             return self._complete_scope(prefix, locations)
 
         # Auto-completion for include values using the 'contexts' keys and for
-        if verify_scope("meta.expect-include-list-or-content", -1):
+        if verify_scope("meta.expect-include-list-or-content"
+                        " | meta.include-list-or-content", -1):
             return self._complete_keyword(prefix, locations) + \
                 self._complete_context(prefix, locations)
 
@@ -232,7 +233,7 @@ class SyntaxDefCompletionsListener(sublime_plugin.ViewEventListener):
         for point in locations:
             # Ensure that we are completing a key name everywhere
             line_prefix = self._line_prefix(point)
-            real_prefix = re.sub(r"^ +(- +)?", " ", line_prefix)  # collapse leading whitespace
+            real_prefix = re.sub(r"^ +(- +)*", " ", line_prefix)  # collapse leading whitespace
             prefixes.add(real_prefix)
 
         if len(prefixes) != 1:
