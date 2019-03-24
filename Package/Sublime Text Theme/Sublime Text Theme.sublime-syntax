@@ -111,7 +111,7 @@ contexts:
         - include: expect-key-rest
 
   main-key:
-    - clear_scopes: 1
+    # - clear_scopes: 1
     - match: (")(rules)(")
       scope: meta.mapping.key.json meta.main-key.sublime-theme string.quoted.double.json
       captures:
@@ -139,7 +139,7 @@ contexts:
     - match: \"
       scope: punctuation.definition.string.begin.json
       set:
-        - clear_scopes: 1
+        # - clear_scopes: 1
         - meta_scope: meta.mapping.key.json meta.main-key.sublime-theme string.quoted.double.json
         - match: \"
           scope: punctuation.definition.string.end.json
@@ -199,7 +199,7 @@ contexts:
       set: [expect-attributes-sequence-value, expect-colon]
 
   rule-key:
-    - clear_scopes: 1
+    # - clear_scopes: 1
     # selectors
     - include: rule-and-parent-keys
     - match: (")(settings)(")
@@ -340,7 +340,7 @@ contexts:
     - match: \"
       scope: punctuation.definition.string.begin.json
       set:
-        - clear_scopes: 1
+        # - clear_scopes: 1
         - meta_scope: meta.mapping.key.json meta.rule-key.sublime-theme string.quoted.double.json
         - match: \"
           scope: punctuation.definition.string.end.json
@@ -484,12 +484,12 @@ contexts:
     - include: expect-mapping-rest
 
   parent-mapping-key:
-    - clear_scopes: 1
+    # - clear_scopes: 1
     - include: rule-and-parent-keys
     - match: \"
       scope: punctuation.definition.string.begin.json
       set:
-        - clear_scopes: 1
+        # - clear_scopes: 1
         - meta_scope: meta.mapping.key.json meta.parent-key.sublime-theme string.quoted.double.json
         - match: \"
           scope: punctuation.definition.string.end.json
@@ -556,7 +556,7 @@ contexts:
     - match: \"
       scope: punctuation.definition.string.begin.json
       set:
-        - clear_scopes: 1
+        # - clear_scopes: 1
         - meta_scope: meta.mapping.key.json meta.texture-key.sublime-theme string.quoted.double.json
         - match: \"
           scope: punctuation.definition.string.end.json
@@ -583,7 +583,7 @@ contexts:
 
   interpolation-mapping-key:
     # https://www.sublimetext.com/docs/3/themes.html#layer_properties
-    - clear_scopes: 1
+    # - clear_scopes: 1
     - match: (")(target|speed)(")
       scope: meta.mapping.key.json meta.interpolation-key.sublime-theme string.quoted.double.json
       captures:
@@ -601,7 +601,7 @@ contexts:
     - match: \"
       scope: punctuation.definition.string.begin.json
       set:
-        - clear_scopes: 1
+        # - clear_scopes: 1
         - meta_scope: meta.mapping.key.json meta.interpolation-key.sublime-theme string.quoted.double.json
         - match: \"
           scope: punctuation.definition.string.end.json
@@ -733,7 +733,7 @@ contexts:
     - include: scope:source.json.sublime#in-mapping-expect-comma
 
   mapping-value-meta:
-    - clear_scopes: 1
+    # - clear_scopes: 1
     - meta_scope: meta.mapping.value.json
     - match: ''
       pop: true
