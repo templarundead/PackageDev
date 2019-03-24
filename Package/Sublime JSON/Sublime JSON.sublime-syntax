@@ -376,13 +376,13 @@ contexts:
       push: mapping-pop
 
   key-pop:
-    - clear_scopes: 1  # clear the "meta.mapping.json" scope
+  # - clear_scopes: 1  # clear the "meta.mapping.json" scope
     - match: \"
       scope: punctuation.definition.string.begin.json
       set: [expect-any-value, expect-colon, inside-key]
 
   inside-key:
-    - clear_scopes: 1  # clear the "meta.mapping.json" scope
+  # - clear_scopes: 1  # clear the "meta.mapping.json" scope
     - meta_scope: meta.mapping.key.json string.quoted.double.json
     - match: '"'
       scope: punctuation.definition.string.end.json
@@ -417,7 +417,7 @@ contexts:
           scope: invalid.illegal.expected-comma.inside-mapping.json
 
   mapping-value-meta:
-    - clear_scopes: 1
+  # - clear_scopes: 1
     - meta_scope: meta.mapping.value.json
     - match: ''
       pop: true
