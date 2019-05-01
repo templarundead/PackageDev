@@ -81,7 +81,7 @@ class SyntaxTestHighlighterListener(sublime_plugin.ViewEventListener):
         """
 
         name = self.view.file_name()
-        if name and not path.basename(name).startswith('syntax_test_'):
+        if name and not path.basename(name).startswith('syntax_test'):
             self.header = None
             return
         self.header = get_syntax_test_tokens(self.view)
@@ -335,6 +335,8 @@ class PackagedevSuggestSyntaxTestCommand(sublime_plugin.TextCommand):
             return
 
         lines, line = listener.get_details_of_line_being_tested()
+        if not lines[-1].assertion_colrange:
+            return
         end_token = listener.header.comment_end
         # don't duplicate the end token if it is on the line but not selected
         if end_token and view.sel()[0].end() == lines[0].line_region.end():
@@ -379,7 +381,8 @@ class PackagedevSuggestSyntaxTestCommand(sublime_plugin.TextCommand):
             view.scope_name(pos)
             for pos in range(line.begin() + col_start, line.begin() + col_end)
         }
-        base_scope = path.commonprefix(list(scopes))
+        base_scope = path.commonprefix(list(scopes)).strip()
+        l.debug("Original base scope: %r", base_scope)
 
         length = 0
         for pos in range(line.begin() + col_end - 1, line.end() + 1):
@@ -387,7 +390,10 @@ class PackagedevSuggestSyntaxTestCommand(sublime_plugin.TextCommand):
             if scope.startswith(base_scope):
                 scopes.add(scope)
                 length += 1
+            else:
+                break
 
+        l.debug("Total scopes covered: %r", scopes)
         return length, scopes
 
 
