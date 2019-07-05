@@ -1,0 +1,6 @@
+{
+    "scope": "meta.project.build.sublime-project meta.main-key.sublime-build",
+    "completions": [
+        { "trigger": "name\tmain key", "contents": "name" },
+    ]
+}

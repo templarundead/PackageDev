@@ -1,0 +1,6 @@
+{
+    "scope": "meta.project.build.sublime-project - meta.project.build.sublime-project meta.mapping meta - string - comment",
+    "completions": [
+        { "trigger": "name\tmain key", "contents": "\"name\": \"$1\"," },
+    ],
+}
