@@ -7,6 +7,8 @@ import time
 import weakref
 
 import sublime
+from sublime_lib import encodings
+
 
 from ..lib.weakmethod import WeakMethodProxy
 from ..lib import get_setting, sorted_completions
@@ -568,11 +570,13 @@ class KnownSettings(object):
             default = self.defaults.get(key)
             l.debug("default value: %r", default)
             completions = self._completions_from_comment(key)
+            completions |= self._known_completions(key)
             completions |= self._completions_from_default(key, default)
             completions = self._marked_default_completions(completions, default)
         return completions
 
-    def _marked_default_completions(self, completions, default):
+    @staticmethod
+    def _marked_default_completions(completions, default):
         """Mark completion items as default.
 
         For a list as default value, mark all of its values as default.
@@ -649,7 +653,8 @@ class KnownSettings(object):
 
         return completions
 
-    def _completions_from_default(self, key, default):
+    @staticmethod
+    def _completions_from_default(key, default):
         """Built completions from default value.
 
         Arguments:
@@ -670,6 +675,15 @@ class KnownSettings(object):
             return set()  # TODO can't complete these yet
         else:
             return {format_completion_item(default)}
+
+    def _known_completions(self, key):
+        """Provide known completions for select settings."""
+        if (
+            self.filename == "Preferences.sublime-settings"
+            and key in ('fallback_encoding', 'default_encoding')
+        ):
+            return set(map(format_completion_item, encodings.SUBLIME_TO_STANDARD.keys()))
+        return set()
 
     @staticmethod
     def _color_scheme_completions():
