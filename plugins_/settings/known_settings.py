@@ -7,7 +7,7 @@ import time
 import weakref
 
 import sublime
-from sublime_lib import encodings
+from sublime_lib import encodings, ResourcePath
 
 
 from ..lib.weakmethod import WeakMethodProxy
@@ -30,14 +30,30 @@ def html_encode(string):
                  .replace("\n", "<br>") if string else ""
 
 
-def format_completion_item(value, default=False):
-    """Create a completion item with its type as description."""
+def format_completion_item(value, default=None, is_default=False, label=None, description=None):
+    """Create a completion item with its type as description.
+
+    Arguments:
+        value (any):
+            The value which is added when completions are committed.
+            If `label` is none, the `value` is used as label, too.
+        default (any):
+            Sets is_default if equals `value`.
+        is_default (bool):
+            If `True` the completion item is marked '(default)'.
+        label (str):
+            An alternative label to use to present the `value`
+            in the completions panel.
+        description (str):
+            An optional description to display after the label.
+            If `None` is provided, the data type of `value` is displayed.
+    """
     if isinstance(value, dict):
         raise ValueError("Cannot format dictionary value", value)
-    default_str = "(default) " if default else ""
-    return ("{0}  \t{2}{1}".format(sublime.encode_value(value).strip('"'),
-                                   type(value).__name__,
-                                   default_str),
+    is_default = is_default or default == value
+    return (("{0}  \t(default) {1}" if is_default else "{0}  \t{1}")
+            .format(sublime.encode_value(label or value).strip('"'),
+                    description or type(value).__name__),
             value)
 
 
@@ -144,7 +160,7 @@ class KnownSettings(object):
         # look for settings files asynchronously
         sublime.set_timeout_async(self._load_settings, 0)
 
-    def _load_settings(self, on_loaded_once=None):
+    def _load_settings(self):
         """Load and merge settings and their comments from all base files.
 
         The idea is each package which wants to add a valid entry to the
@@ -485,17 +501,16 @@ class KnownSettings(object):
             l.debug("no completions to offer")
             return None
 
-        is_str = any(bool(
-            isinstance(value, str)
-            or isinstance(value, list) and value and isinstance(value[0], str)
-        ) for _, value in completions)
-        # cursor already within quotes
+        is_str = any(
+            bool(isinstance(value, str)
+                 or isinstance(value, list) and value and isinstance(value[0], str)
+                 ) for _, value in completions
+        )
         in_str = view.match_selector(point, "string")
         l.debug("completing a string (%s) within a string (%s)", is_str, in_str)
-        # 'meta.structure.array' is used in the default JSON syntax
-        # (PR pending: https://github.com/sublimehq/Packages/pull/862)
+
         is_list = isinstance(self.defaults.get(key), list)
-        in_list = view.match_selector(point, "meta.sequence | meta.structure.array")
+        in_list = view.match_selector(point, "meta.sequence")
         l.debug("completing a list item (%s) within a list (%s)", is_list, in_list)
 
         if in_str and not is_str:
@@ -561,45 +576,20 @@ class KnownSettings(object):
             {(trigger, contents), ...}
                 A set of all completions.
         """
+        l.debug("building completions for key %r", key)
+        default = self.defaults.get(key)
+        l.debug("default value: %r", default)
+
         if key == 'color_scheme':
-            completions = self._color_scheme_completions()
+            completions = self._color_scheme_completions(default)
+        elif key in ('default_encoding', 'fallback_encoding'):
+            completions = self._encoding_completions(default)
         elif key == 'theme':
-            completions = self._theme_completions()
+            completions = self._theme_completions(default)
         else:
-            l.debug("building completions for key %r", key)
-            default = self.defaults.get(key)
-            l.debug("default value: %r", default)
             completions = self._completions_from_comment(key)
-            completions |= self._known_completions(key)
             completions |= self._completions_from_default(key, default)
-            completions = self._marked_default_completions(completions, default)
         return completions
-
-    @staticmethod
-    def _marked_default_completions(completions, default):
-        """Mark completion items as default.
-
-        For a list as default value, mark all of its values as default.
-
-        Arguments:
-            completions (set):
-                The set with the completion items.
-
-            default (Any):
-                The default value (can also be a list).
-
-        Returns:
-            {(trigger, contents), ...}
-                A set of all completions with defaults marked.
-        """
-        default_completions = set()
-        is_list = isinstance(default, list)
-        for item in completions:
-            value = item[1]
-            if is_list and value in default or value == default:
-                item = format_completion_item(value, default=True)
-            default_completions.add(item)
-        return default_completions
 
     def _completions_from_comment(self, key):
         """Parse settings comments and return all possible values.
@@ -668,48 +658,79 @@ class KnownSettings(object):
         if default is None or default == "":
             return set()
         elif isinstance(default, bool):
-            return {format_completion_item(True), format_completion_item(False)}
+            return set(format_completion_item(value, default=default) for value in [True, False])
         elif isinstance(default, list):
-            return {format_completion_item(value) for value in default}
+            return {format_completion_item(value, default=default) for value in default}
         elif isinstance(default, dict):
             return set()  # TODO can't complete these yet
         else:
-            return {format_completion_item(default)}
-
-    def _known_completions(self, key):
-        """Provide known completions for select settings."""
-        if (
-            self.filename == "Preferences.sublime-settings"
-            and key in ('fallback_encoding', 'default_encoding')
-        ):
-            return set(map(format_completion_item, encodings.SUBLIME_TO_STANDARD.keys()))
-        return set()
+            return {format_completion_item(default, is_default=True)}
 
     @staticmethod
-    def _color_scheme_completions():
+    def _color_scheme_completions(default):
         """Create completions of all visible color schemes.
 
         The set will not include color schemes matching at least one entry of
         `"settings.exclude_color_scheme_patterns": []`.
 
+        default (string):
+            The default `color_scheme` value.
+
         Returns:
             {(trigger, contents], ...}
                 A set of all completions.
                 - trigger (string): base file name of the color scheme
-                - contents (string): the path to commit to the settings
+                - contents (string): the value to commit to the settings
         """
         hidden = get_setting('settings.exclude_color_scheme_patterns') or []
         completions = set()
+        for scheme_path in sublime.find_resources("*.sublime-color-scheme"):
+            if not any(hide in scheme_path for hide in hidden):
+                try:
+                    root, package, *_, name = scheme_path.split("/")
+                except ValueError:
+                    continue
+                if root == 'Cache':
+                    continue
+                completions.add(format_completion_item(
+                    value=name, default=default, description=package
+                ))
+
         for scheme_path in sublime.find_resources("*.tmTheme"):
             if not any(hide in scheme_path for hide in hidden):
-                _, package, *_, file_name = scheme_path.split("/")
-                completions.add((
-                    "{0}  \t{1}".format(file_name, package), scheme_path))
+                try:
+                    root, package, *_, name = scheme_path.split("/")
+                except ValueError:
+                    continue
+                if root == 'Cache':
+                    continue
+                completions.add(format_completion_item(
+                    value=scheme_path, default=default, label=name, description=package
+                ))
         return completions
 
     @staticmethod
-    def _theme_completions():
+    def _encoding_completions(default):
+        """Create completions of all available encoding values.
+
+        default (string):
+            The default `encoding` value.
+
+        Returns:
+            {(trigger, contents), ...}
+                A set of all completions.
+                - trigger (string): the encoding in sublime format
+                - contents (string): the encoding in sublime format
+        """
+        return {format_completion_item(enc, default=default, description="encoding")
+                for enc in encodings.SUBLIME_TO_STANDARD.keys()}
+
+    @staticmethod
+    def _theme_completions(default):
         """Create completions of all visible themes.
+
+        default (string):
+            The default `theme` value.
 
         The set will not include color schemes matching at least one entry of
         `"settings.exclude_theme_patterns": []` setting.
@@ -722,8 +743,9 @@ class KnownSettings(object):
         """
         hidden = get_setting('settings.exclude_theme_patterns') or []
         completions = set()
-        for theme in sublime.find_resources("*.sublime-theme"):
-            theme = os.path.basename(theme)
-            if not any(hide in theme for hide in hidden):
-                completions.add(("{0}  \ttheme".format(theme), theme))
+        for theme_path in ResourcePath.glob_resources("*.sublime-theme"):
+            if not any(hide in theme_path.name for hide in hidden):
+                completions.add(format_completion_item(
+                    value=theme_path.name, default=default, description="theme"
+                ))
         return completions
