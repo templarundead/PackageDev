@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>scope</key>
-    <string>source.yaml.sublime.syntax entity.name.function.context</string>
+    <string>source.yaml.sublime.syntax entity.name.label.branch-point</string>
     <key>settings</key>
     <dict>
         <key>showInSymbolList</key>

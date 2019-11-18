@@ -62,6 +62,9 @@ DATA = """
         deprecated
 
     keyword
+        context
+            block
+            resource
         control
             conditional
                 case
@@ -93,7 +96,6 @@ DATA = """
                 for
                 repeat-until
                 while
-            resource
             import
         declaration
             class
@@ -279,4 +281,14 @@ DATA = """
 
     source
     text
+
+    color
+        bluish
+        cyanish
+        greenish
+        orangish
+        pinkish
+        purplish
+        redish
+        yellowish
 """

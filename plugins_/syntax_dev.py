@@ -149,6 +149,7 @@ class SyntaxDefCompletionsListener(sublime_plugin.ViewEventListener):
     base_completions_contexts = _build_completions(
         base_keys=('scope', 'match', 'include', 'push', 'with_prototype',  # 'pop',
                    'embed', 'embed_scope', 'escape',
+                   'branch_point', 'fail',
                    'meta_scope', 'meta_content_scope', 'meta_include_prototype', 'clear_scopes'),
         dict_keys=('captures', 'escape_captures'),
     )
@@ -183,15 +184,20 @@ class SyntaxDefCompletionsListener(sublime_plugin.ViewEventListener):
             return self._complete_scope(prefix, locations)
 
         # Auto-completion for include values using the 'contexts' keys and for
-        if verify_scope("meta.expect-include-list-or-content"
-                        " | meta.include-list-or-content", -1):
+        if verify_scope("meta.expect-context-list-or-content"
+                        " | meta.context-list-or-content", -1):
             return self._complete_keyword(prefix, locations) + \
                 self._complete_context(prefix, locations)
 
         # Auto-completion for include values using the 'contexts' keys
-        if verify_scope("meta.expect-include-list | meta.expect-include"
-                        " | meta.include | meta.include-list", -1):
+        if verify_scope("meta.expect-context-list | meta.expect-context"
+                        " | meta.include | meta.context-list", -1):
             return self._complete_context(prefix, locations)
+
+        # Auto-completion for branch points with 'fail' key
+        if verify_scope("meta.expect-branch-point-reference"
+                        " | meta.branch-point-reference", -1):
+            return self._complete_branch_point()
 
         # Auto-completion for variables in match patterns using 'variables' keys
         if verify_scope("keyword.other.variable"):
@@ -218,7 +224,7 @@ class SyntaxDefCompletionsListener(sublime_plugin.ViewEventListener):
 
         context_names = (
             self.view.substr(r)
-            for r in self.view.find_by_selector("entity.name.context")
+            for r in self.view.find_by_selector("entity.name.function.context")
         )
         return [(ctx + "\tcontext", ctx) for ctx in context_names]
 
@@ -316,6 +322,13 @@ class SyntaxDefCompletionsListener(sublime_plugin.ViewEventListener):
             for r in self.view.find_by_selector("entity.name.constant")
         )
         return [(var + "\tvariable", var) for var in variable_names]
+
+    def _complete_branch_point(self):
+        branch_names = (
+            self.view.substr(r)
+            for r in self.view.find_by_selector("entity.name.label.branch-point")
+        )
+        return [(var + "\tbranch point", var) for var in branch_names]
 
 
 class PackagedevCommitScopeCompletionCommand(sublime_plugin.TextCommand):
