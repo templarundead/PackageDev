@@ -30,6 +30,16 @@ def _escape_in_snippet(v):
     return v.replace("}", "\\}").replace("$", "\\$")
 
 
+def is_plugin(view):
+    """Use some heuristics to determine whether a Python view shows a plugin.
+
+    Or the console input widget, should it be using the Python syntax.
+    """
+    return (view.find("import sublime", 0, sublime.LITERAL) is not None
+            or sublime.packages_path() in (view.file_name() or "")
+            or view.settings().get('is_widget'))
+
+
 def create_args_snippet_from_command_args(command_args, quote_char='"', for_json=True):
     """Create an argument snippet to insert from the arguments to run a command.
 
@@ -110,9 +120,9 @@ class SublimeTextCommandCompletionPythonListener(sublime_plugin.EventListener):
 
     @staticmethod
     def _create_builtin_completion(c):
-        meta = get_builtin_command_meta_data()
+        _, data = get_builtin_command_meta_data()
         show = ("{c}\t({stype}) built-in"
-                .format(c=c, stype=meta[c].get("command_type", " ")[:1].upper()))
+                .format(c=c, stype=data[c].get("command_type", " ")[:1].upper()))
         return show, c
 
     @staticmethod
@@ -135,9 +145,7 @@ class SublimeTextCommandCompletionPythonListener(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
         loc = locations[0]
         python_arg_scope = ("source.python meta.function-call.arguments.python string.quoted")
-        if not view.score_selector(loc, python_arg_scope):
-            return
-        if sublime.packages_path() not in (view.file_name() or ""):
+        if not view.score_selector(loc, python_arg_scope) or not is_plugin(view):
             return
 
         before_region = sublime.Region(view.line(loc).a, loc)
@@ -224,10 +232,8 @@ class SublimeTextCommandArgsCompletionPythonListener(sublime_plugin.EventListene
 
     def on_query_completions(self, view, prefix, locations):
         loc = locations[0]
-        python_arg_scope = "source.python meta.function-call.python"
-        if not view.score_selector(loc, python_arg_scope):
-            return
-        if sublime.packages_path() not in (view.file_name() or ""):
+        python_arg_scope = "source.python meta.function-call.arguments.python,"
+        if not view.score_selector(loc, python_arg_scope) or not is_plugin(view):
             return
 
         before_region = sublime.Region(view.line(loc).a, loc)
