@@ -21,7 +21,8 @@
     {
 //  ^ meta.variables.sublime-color-scheme meta.mapping.json punctuation.section.mapping.begin.json
         "color_radical_red": "#F92672", // http://chir.ag/projects/name-that-color/#F92672
-//      ^^^^^^^^^^^^^^^^^^^ string.quoted.double.json meta.variable-name.sublime-color-scheme
+//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.mapping.value meta.mapping - meta.mapping meta.mapping meta.mapping
+//      ^^^^^^^^^^^^^^^^^^^ meta.mapping.key.json string.quoted.double.json meta.variable-name.sublime-color-scheme
 //       ^^^^^^^^^^^^^^^^^ entity.name.variable.sublime-color-scheme
 //                         ^ punctuation.separator.mapping.key-value.json
 //                           ^^^^^^^^^ string.quoted.double.json meta.color.sublime-color-scheme
@@ -41,6 +42,7 @@
     {
 //  ^ meta.globals.sublime-color-scheme meta.mapping.json punctuation.section.mapping.begin.json
         "accent": "var(color_pear_green)",
+//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.mapping.value meta.mapping - meta.mapping meta.mapping meta.mapping
 //      ^^^^^^^^ meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
 //      ^ punctuation.definition.string.begin.json
 //             ^ punctuation.definition.string.end.json
@@ -79,6 +81,7 @@
 //                                       ^^^^^ invalid.illegal.expected-string.sublime
 //                                            ^ punctuation.separator.mapping.pair.json
         "random": "nope",
+//      ^^^^^^^^^^^^^^^^^ meta.mapping.value meta.mapping - meta.mapping meta.mapping meta.mapping
 //      ^^^^^^^^ meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
 //       ^^^^^^ - entity.name
 //              ^ punctuation.separator.mapping.key-value.json

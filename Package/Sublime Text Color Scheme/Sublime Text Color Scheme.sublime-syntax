@@ -171,25 +171,35 @@ contexts:
           scope: punctuation.section.mapping.end.json
           pop: true
         - match: (?=")
-          push: [in-mapping-expect-comma, variable-mapping-key]
+          push:
+            - in-mapping-expect-comma
+            - expect-color-string-value
+            - expect-colon
+            - variable-mapping-key-meta
+            - variable-mapping-key-string
         - include: expect-key-rest
 
-  variable-mapping-key:
-    - match: \"
+  variable-mapping-key-meta:
+    - clear_scopes: 1
+    - meta_scope:
+        meta.mapping.key.json
+        string.quoted.double.json
+        meta.variable-name.sublime-color-scheme
+    - match: ''
+      pop: true
+
+  variable-mapping-key-string:
+    - match: '"'
       scope: punctuation.definition.string.begin.json
       set:
-        - meta_scope: string.quoted.double.json meta.variable-name.sublime-color-scheme
         - meta_content_scope: entity.name.variable.sublime-color-scheme
-        - match: (?=")
-          set:
-            - match: '"'
-              scope: string.quoted.double.json meta.variable-name.sublime-color-scheme punctuation.definition.string.end.json
-              set: [expect-color-string-value, expect-colon]
+        - match: '"'
+          scope: punctuation.definition.string.end.json
+          pop: true
         - match: $\n?
           scope: invalid.illegal.unclosed-string.json
-          set: [expect-color-string-value, expect-colon]
+          pop: true
         - include: string-escape
-    - include: in-dictionary-main-key
 
   expect-globals-mapping-value:
     - match: (?=\{)
@@ -209,6 +219,8 @@ contexts:
         - include: expect-key-rest
 
   globals-mapping-key:
+    - clear_scopes: 1
+    - meta_scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
     - match: |-
         (?x)
         (")(
@@ -223,60 +235,53 @@ contexts:
           |line_diff_(?:modified|added|deleted) # added in 3186 & 3189
           |block_caret # added in 3190
         )(")
-      scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
       captures:
         1: punctuation.definition.string.begin.json
         2: entity.name.globals.sublime-color-scheme
         3: punctuation.definition.string.end.json
       set: [expect-color-string-value, expect-colon]
     - match: (")((?:phantom|popup|sheet)_css)(")
-      scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
       captures:
         1: punctuation.definition.string.begin.json
         2: entity.name.globals.sublime-color-scheme
         3: punctuation.definition.string.end.json
       set: [expect-css-string-value, expect-colon]
     - match: (")(shadow_width|selection_corner_radius|selection_border_width|line_diff_width)(")
-      scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
       captures:
         1: punctuation.definition.string.begin.json
         2: entity.name.globals.sublime-color-scheme
         3: punctuation.definition.string.end.json
       set: [expect-possible-number-in-string-value, expect-colon]
     - match: (")(implicit_selection_foreground)(")
-      scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
       captures:
         1: punctuation.definition.string.begin.json
         2: entity.name.globals.sublime-color-scheme
         3: punctuation.definition.string.end.json
       set: [expect-string-boolean-value, expect-colon]
     - match: (")(brackets_options|bracket_contents_options|tags_options)(")
-      scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
       captures:
         1: punctuation.definition.string.begin.json
         2: entity.name.globals.sublime-color-scheme
         3: punctuation.definition.string.end.json
       set: [expect-underlinestyle-string-value, expect-colon]
     - match: (")(selection_corner_style)(")
-      scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
       captures:
         1: punctuation.definition.string.begin.json
         2: entity.name.globals.sublime-color-scheme
         3: punctuation.definition.string.end.json
       set: [expect-cornerstyle-string-value, expect-colon]
-    - include: in-dictionary-globals-key
-    - include: expect-mapping-rest
-
-  in-dictionary-globals-key:
-    - match: \"
-      scope: punctuation.definition.string.begin.json
-      set:
+    - match: ''
+      set:  # reset meta settings
         - clear_scopes: 1
-        - meta_scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
         - match: \"
-          scope: punctuation.definition.string.end.json
-          set: [expect-any-value, expect-colon]
-        - include: string-escape
+          scope: punctuation.definition.string.begin.json
+          set:
+            - clear_scopes: 1
+            - meta_scope: meta.mapping.key.json meta.globals-key.sublime-color-scheme string.quoted.double.json
+            - match: \"
+              scope: punctuation.definition.string.end.json
+              set: [expect-any-value, expect-colon]
+            - include: string-escape
 
   comments:
     - include: scope:source.json.sublime#comments
